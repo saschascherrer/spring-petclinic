@@ -1,0 +1,46 @@
+#!/bin/env groovy
+
+pipeline {
+  
+  agent any
+      
+  environment {
+    GIT_REPO = "https://github.com/saschascherrer/spring-petclinic.git"
+    GIT_BRANCH = "main"
+  }
+  
+  stages {
+    stage('Git: Clone main branch') {
+      steps {
+        git branch: GIT_BRANCH, url: GIT_REPO
+      }
+    }
+    
+    stage ('Maven: Compile'){
+      steps {
+        sh './mvnw clean compile'
+      }
+    }
+    
+    stage('Maven: Test') {
+       steps {
+         sh './mvnw test'
+       }
+    }
+    
+    stage('Maven: Package') {
+       steps {
+         sh './mvnw package'
+       }
+    }
+
+    stage('Package as Docker Image') {
+      steps {
+        sh 'buildah bud -t localhost/spring-petclinic:latest'
+        sh 'buildah push localhost/spring-petclinic:latest docker-archive:docker-image.tar'
+      }
+    }    
+
+  }
+}
+
