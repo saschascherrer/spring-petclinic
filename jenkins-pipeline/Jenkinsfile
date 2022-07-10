@@ -20,7 +20,13 @@ pipeline {
       }
     }
     
-    stage ('Maven: Compile'){
+    stage ('Cleanup: Docker Image') {
+      steps {
+        sh 'rm -f docker-image.tar'
+      }
+    }
+    
+    stage ('Maven: Compile') {
       steps {
         sh './mvnw clean compile'
       }
